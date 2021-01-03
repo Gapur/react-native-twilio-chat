@@ -10,12 +10,17 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-navigation/native": "^5.8.10",
+    "@react-navigation/stack": "^5.12.8",
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "faker": "^5.1.0",
     "react": "16.13.1",
     "react-native": "0.63.4",
-    "twilio": "^3.54.1"
+    "react-native-gifted-chat": "^0.16.3",
+    "twilio": "^3.54.1",
+    "twilio-chat": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
