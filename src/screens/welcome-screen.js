@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native'
 
 import { colors } from '../theme'
 import { routes } from '../app'
+import { images } from '../assets'
 
 export function WelcomeScreen({ navigation }) {
   const [username, setUsername] = useState("")
 
-  const onPress = () => navigation.navigate(routes.ChatList)
+  const onPress = () => navigation.navigate(routes.ChatList.name)
 
   return (
     <View style={styles.container}>
+      <Image style={styles.logo} source={images.logo} />
       <Text style={styles.titleText}>Welcome to Twilio Chat</Text>
         <TextInput
           value={username}
@@ -31,6 +33,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.whisper,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 32,
   },
   titleText: {
     fontSize: 20,

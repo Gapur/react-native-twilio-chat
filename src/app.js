@@ -6,21 +6,52 @@ import { WelcomeScreen } from './screens/welcome-screen'
 import { ChatListScreen } from './screens/chat-list-screen'
 import { ChatRoomScreen } from './screens/chat-room-screen'
 
+import { colors } from './theme'
+
 const Stack = createStackNavigator();
 
 export const routes = {
-  Welcome: 'welcome',
-  ChatList: 'chat-list',
-  ChatRoom: 'chat-room'
+  Welcome: {
+    name: 'welcome', title: "Welcome"
+  },
+  ChatList: {
+    name: 'chat-list', title: "Chat List"
+  },
+  ChatRoom: {
+    name: 'chat-room', title: "Chat Room"
+  }
 }
 
 export default function App() {
+  const screenOptions = (title) => ({
+    title,
+    headerStyle: {
+      backgroundColor: colors.amaranth,
+    },
+    headerTintColor: colors.white,
+    headerTitleStyle: {
+      fontWeight: '700',
+    },
+  })
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name={routes.Welcome} component={WelcomeScreen} />
-        <Stack.Screen name={routes.ChatList} component={ChatListScreen} />
-        <Stack.Screen name={routes.ChatRoom} component={ChatRoomScreen} />
+        <Stack.Screen 
+          name={routes.Welcome.name}
+          options={screenOptions(routes.Welcome.title)}
+          component={WelcomeScreen}
+        />
+        <Stack.Screen
+          name={routes.ChatList.name}
+          options={screenOptions(routes.ChatList.title)}
+          component={ChatListScreen}
+        />
+        <Stack.Screen
+          name={routes.ChatRoom.name}
+          options={screenOptions(routes.ChatRoom.title)}
+          component={ChatRoomScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   )
