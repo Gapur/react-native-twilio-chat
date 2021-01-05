@@ -17,8 +17,9 @@ export function WelcomeScreen({ navigation }) {
         <TextInput
           value={username}
           onChangeText={setUsername}
-          label='Username'
           style={styles.input}
+          placeholder="Username"
+          placeholderTextColor={colors.ghost}
         />
         <TouchableOpacity style={styles.button} onPress={onPress}>
           <Text style={styles.buttonText}>Login</Text>
