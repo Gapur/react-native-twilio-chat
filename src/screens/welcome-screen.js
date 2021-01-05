@@ -11,7 +11,7 @@ export function WelcomeScreen({ navigation }) {
   const onPress = () => navigation.navigate(routes.ChatList.name)
 
   return (
-    <View style={styles.container}>
+    <View style={styles.screen}>
       <Image style={styles.logo} source={images.logo} />
       <Text style={styles.titleText}>Welcome to Twilio Chat</Text>
         <TextInput
@@ -29,7 +29,7 @@ export function WelcomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',

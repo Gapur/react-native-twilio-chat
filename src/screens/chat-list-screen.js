@@ -3,18 +3,19 @@ import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react
 
 import { colors } from '../theme'
 import { images } from '../assets'
+import { routes } from '../app'
 
 const CHANNEL_LIST = Array(7).fill(null).map((_, idx) => idx)
 
-export function ChatListScreen() {
+export function ChatListScreen({ navigation }) {
   return (
-    <View style={styles.container}>
+    <View style={styles.screen}>
       <FlatList
         data={CHANNEL_LIST}
         contentContainerStyle={{ width: '100%' }}
         keyExtractor={item => item}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(routes.ChatRoom.name)}>
             <Image style={styles.cardIcon} source={images.message} />
             <Text style={styles.cardText}>Channel {item}</Text>
           </TouchableOpacity>
@@ -25,7 +26,7 @@ export function ChatListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: colors.whisper,
   },
