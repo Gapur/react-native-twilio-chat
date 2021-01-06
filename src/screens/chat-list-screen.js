@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useLayoutEffect } from 'react'
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native'
 
 import { colors } from '../theme'
@@ -8,11 +8,20 @@ import { routes } from '../app'
 const CHANNEL_LIST = Array(7).fill(null).map((_, idx) => idx)
 
 export function ChatListScreen({ navigation }) {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(routes.ChatCreat.name)}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation])
+
   return (
     <View style={styles.screen}>
       <FlatList
         data={CHANNEL_LIST}
-        contentContainerStyle={{ width: '100%' }}
         keyExtractor={item => item}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(routes.ChatRoom.name)}>
@@ -29,6 +38,19 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.whisper,
+  },
+  addButton: {
+    height: 24,
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8
+  },
+  addButtonText: {
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 24,
+    color: colors.white
   },
   card: {
     flexDirection: 'row',
