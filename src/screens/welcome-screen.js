@@ -1,14 +1,25 @@
 import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native'
+import axios from 'axios'
+import { showMessage } from 'react-native-flash-message'
 
 import { colors } from '../theme'
 import { routes } from '../app'
 import { images } from '../assets'
+import { TwilioService } from '../twilio-service'
 
 export function WelcomeScreen({ navigation }) {
   const [username, setUsername] = useState("")
 
-  const onPress = () => navigation.navigate(routes.ChatList.name)
+  const onPress = () => axios
+    .get(`http://localhost:3001/token/${username}`)
+    .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
+    .then(() => TwilioService.getInstance().addTokenListener(() => {}))
+    .then(() => navigation.navigate(routes.ChatList.name))
+    .catch((err) => showMessage({
+      message: err.message,
+      type: 'danger'
+    }))
 
   return (
     <View style={styles.screen}>
@@ -21,7 +32,7 @@ export function WelcomeScreen({ navigation }) {
           placeholder="Username"
           placeholderTextColor={colors.ghost}
         />
-        <TouchableOpacity style={styles.button} onPress={onPress}>
+        <TouchableOpacity disabled={!username} style={styles.button} onPress={onPress}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
     </View>

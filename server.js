@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 const Twilio = require('twilio')
-const faker = require('faker')
 const express = require('express')
 
 const app = express()
@@ -9,8 +8,8 @@ const app = express()
 const AccessToken = Twilio.jwt.AccessToken
 const ChatGrant = AccessToken.ChatGrant
 
-app.get('/token', (req, res) => {
-  const identity = faker.name.findName()
+app.get('/token/:identity', (req, res) => {
+  const identity = req.params.identity
   const token = new AccessToken(
     process.env.TWILIO_ACCOUNT_SID,
     process.env.TWILIO_API_KEY,

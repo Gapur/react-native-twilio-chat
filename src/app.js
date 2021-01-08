@@ -1,6 +1,7 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
+import FlashMessage from 'react-native-flash-message'
 
 import { WelcomeScreen } from './screens/welcome-screen'
 import { ChatListScreen } from './screens/chat-list-screen'
@@ -62,6 +63,7 @@ export default function App() {
           component={ChatCreateScreen}
         />
       </Stack.Navigator>
+      <FlashMessage position="bottom" />
     </NavigationContainer>
   )
 }
