@@ -1,18 +1,17 @@
 import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native'
-import axios from 'axios'
 import { showMessage } from 'react-native-flash-message'
 
 import { colors } from '../theme'
 import { routes } from '../app'
 import { images } from '../assets'
-import { TwilioService } from '../twilio-service'
+import { TwilioService } from '../services/twilio-service'
+import { getToken } from '../services/api-service'
 
 export function WelcomeScreen({ navigation }) {
   const [username, setUsername] = useState("")
 
-  const onPress = () => axios
-    .get(`http://localhost:3001/token/${username}`)
+  const onPress = () => getToken(username)
     .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
     .then(() => TwilioService.getInstance().addTokenListener(() => {}))
     .then(() => navigation.navigate(routes.ChatList.name))

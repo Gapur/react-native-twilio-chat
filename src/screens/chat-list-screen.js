@@ -1,13 +1,19 @@
-import React, { useLayoutEffect } from 'react'
+import React, { useState, useLayoutEffect, useEffect, useCallback } from 'react'
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native'
+import { showMessage } from 'react-native-flash-message'
 
 import { colors } from '../theme'
 import { images } from '../assets'
 import { routes } from '../app'
+import { TwilioService } from '../services/twilio-service'
+import { getToken } from '../services/api-service'
 
 const CHANNEL_LIST = Array(7).fill(null).map((_, idx) => idx)
 
 export function ChatListScreen({ navigation }) {
+  const [loading, setLoading] = useState(false)
+  const [channels, setChannels] = useState([])
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -18,10 +24,49 @@ export function ChatListScreen({ navigation }) {
     })
   }, [navigation])
 
+  const configureChannelEvents = useCallback(
+    (client) => {
+      client.on('messageAdded', (message) => {
+        const lastMessageTime = message.dateCreated
+      })
+      return client
+    },
+    [],
+  )
+
+  const syncSubscribedChannels = useCallback(
+    (client) =>
+      client.getSubscribedChannels().then((paginator) => {
+        chatListPaginator.current = paginator
+        setChannels(chatListPaginator.current.items)
+      }),
+    [setChannels],
+  )
+
+  useEffect(() => {
+    setLoading(true)
+    getToken()
+      .then((twilioToken) => TwilioService.getInstance().getChatClient(twilioToken.token))
+      .then(() => TwilioService.getInstance().addTokenListener(getToken))
+      .then(configureChannelEvents)
+      .then(syncSubscribedChannels)
+      .catch((err) => showMessage({
+        message: err.message,
+        type: 'danger'
+      }))
+      .finally(() => setLoading(false))
+
+    return () => {
+      TwilioService.getInstance().clientShutdown()
+    }
+  }, [])
+
+  console.log('channels', channels)
+
   return (
     <View style={styles.screen}>
       <FlatList
-        data={CHANNEL_LIST}
+        data={channels}
         keyExtractor={item => item}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(routes.ChatRoom.name)}>
