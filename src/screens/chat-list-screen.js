@@ -1,17 +1,17 @@
-import React, { useState, useLayoutEffect, useEffect, useCallback, useRef } from 'react'
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native'
-import { showMessage } from 'react-native-flash-message'
+import React, { useState, useLayoutEffect, useEffect, useCallback, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 
-import { colors } from '../theme'
-import { images } from '../assets'
-import { routes } from '../app'
-import { TwilioService } from '../services/twilio-service'
-import { getToken } from '../services/api-service'
+import { colors } from '../theme';
+import { images } from '../assets';
+import { routes } from '../app';
+import { TwilioService } from '../services/twilio-service';
+import { getToken } from '../services/api-service';
 
 export function ChatListScreen({ navigation }) {
-  const [loading, setLoading] = useState(false)
-  const [channels, setChannels] = useState([])
-  const channelPaginator = useRef()
+  const [loading, setLoading] = useState(false);
+  const [channels, setChannels] = useState([]);
+  const channelPaginator = useRef();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -20,51 +20,50 @@ export function ChatListScreen({ navigation }) {
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       ),
-    })
-  }, [navigation])
+    });
+  }, [navigation]);
 
-  const configureChannelEvents = useCallback(
-    (client) => {
-      client.on('messageAdded', (message) => {
-        const lastMessageTime = message.dateCreated
-      })
-      return client
-    },
-    [],
-  )
+  const configureChannelEvents = useCallback((client) => {
+    client.on('messageAdded', (message) => {
+      const lastMessageTime = message.dateCreated;
+    });
+    return client;
+  }, []);
 
   const syncSubscribedChannels = useCallback(
     (client) =>
       client.getSubscribedChannels().then((paginator) => {
-        channelPaginator.current = paginator
-        setChannels(TwilioService.getInstance().serializeChannels(channelPaginator.current.items))
+        channelPaginator.current = paginator;
+        setChannels(TwilioService.getInstance().serializeChannels(channelPaginator.current.items));
       }),
     [setChannels],
-  )
+  );
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     getToken()
       .then((twilioToken) => TwilioService.getInstance().getChatClient(twilioToken.token))
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
       .then(configureChannelEvents)
       .then(syncSubscribedChannels)
-      .catch((err) => showMessage({
-        message: err.message,
-        type: 'danger'
-      }))
-      .finally(() => setLoading(false))
+      .catch((err) =>
+        showMessage({
+          message: err.message,
+          type: 'danger',
+        }),
+      )
+      .finally(() => setLoading(false));
 
     return () => {
-      TwilioService.getInstance().clientShutdown()
-    }
-  }, [])
+      TwilioService.getInstance().clientShutdown();
+    };
+  }, [configureChannelEvents, syncSubscribedChannels]);
 
   return (
     <View style={styles.screen}>
       <FlatList
         data={channels}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(routes.ChatRoom.name)}>
             <Image style={styles.cardIcon} source={images.message} />
@@ -73,7 +72,7 @@ export function ChatListScreen({ navigation }) {
         )}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -86,13 +85,13 @@ const styles = StyleSheet.create({
     width: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8
+    marginRight: 8,
   },
   addButtonText: {
     fontSize: 22,
     fontWeight: '700',
     lineHeight: 24,
-    color: colors.white
+    color: colors.white,
   },
   card: {
     flexDirection: 'row',
@@ -120,6 +119,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.cinder,
     marginLeft: 24,
-    marginRight: 8
-  }
-})
+    marginRight: 8,
+  },
+});

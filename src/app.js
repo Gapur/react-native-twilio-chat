@@ -1,31 +1,35 @@
-import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack'
-import FlashMessage from 'react-native-flash-message'
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import FlashMessage from 'react-native-flash-message';
 
-import { WelcomeScreen } from './screens/welcome-screen'
-import { ChatListScreen } from './screens/chat-list-screen'
-import { ChatRoomScreen } from './screens/chat-room-screen'
-import { ChatCreateScreen } from './screens/chat-create-screen'
+import { WelcomeScreen } from './screens/welcome-screen';
+import { ChatListScreen } from './screens/chat-list-screen';
+import { ChatRoomScreen } from './screens/chat-room-screen';
+import { ChatCreateScreen } from './screens/chat-create-screen';
 
-import { colors } from './theme'
+import { colors } from './theme';
 
 const Stack = createStackNavigator();
 
 export const routes = {
   Welcome: {
-    name: 'welcome', title: 'Welcome'
+    name: 'welcome',
+    title: 'Welcome',
   },
   ChatList: {
-    name: 'chat-list', title: 'Chat List'
+    name: 'chat-list',
+    title: 'Chat List',
   },
   ChatRoom: {
-    name: 'chat-room', title: 'Chat Room'
+    name: 'chat-room',
+    title: 'Chat Room',
   },
   ChatCreat: {
-    name: 'chat-create', title: 'New Channel'
-  }
-}
+    name: 'chat-create',
+    title: 'New Channel',
+  },
+};
 
 export default function App() {
   const screenOptions = (title) => ({
@@ -37,12 +41,12 @@ export default function App() {
     headerTitleStyle: {
       fontWeight: '700',
     },
-  })
+  });
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen 
+        <Stack.Screen
           name={routes.Welcome.name}
           options={screenOptions(routes.Welcome.title)}
           component={WelcomeScreen}
@@ -65,6 +69,5 @@ export default function App() {
       </Stack.Navigator>
       <FlashMessage position="bottom" />
     </NavigationContainer>
-  )
+  );
 }
-

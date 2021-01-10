@@ -9,5 +9,5 @@ export default {
   whisper: '#eeeeee',
   amaranth: '#E0434C',
   windsor: '#402583',
-  ghost: '#bbbdc5'
-}
+  ghost: '#bbbdc5',
+};

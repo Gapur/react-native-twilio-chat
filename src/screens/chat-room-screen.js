@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { GiftedChat } from 'react-native-gifted-chat'
+import React, { useState, useCallback, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { GiftedChat } from 'react-native-gifted-chat';
 
-import { colors } from '../theme'
+import { colors } from '../theme';
 
 export function ChatRoomScreen() {
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     setMessages([
@@ -19,25 +19,25 @@ export function ChatRoomScreen() {
           avatar: 'https://placeimg.com/140/140/any',
         },
       },
-    ])
-  }, [])
+    ]);
+  }, []);
 
   const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-  }, [])
+    setMessages((previousMessages) => GiftedChat.append(previousMessages, messages));
+  }, []);
 
   return (
     <View style={styles.screen}>
       <GiftedChat
         messagesContainerStyle={styles.messageContainer}
         messages={messages}
-        onSend={messages => onSend(messages)}
+        onSend={(messages) => onSend(messages)}
         user={{
           _id: 1,
         }}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
   messageContainer: {
     backgroundColor: colors.whisper,
   },
-})
+});

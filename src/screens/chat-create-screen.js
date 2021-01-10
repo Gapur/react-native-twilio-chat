@@ -1,35 +1,40 @@
-import React, { useState } from 'react'
-import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native'
-import { showMessage } from 'react-native-flash-message'
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 
-import { colors } from '../theme'
-import { images } from '../assets'
-import { TwilioService } from '../services/twilio-service'
+import { colors } from '../theme';
+import { images } from '../assets';
+import { TwilioService } from '../services/twilio-service';
 
 export function ChatCreateScreen({ navigation }) {
-  const [channelName, setChannelName] = useState("")
+  const [channelName, setChannelName] = useState('');
 
-  const onPress = () => TwilioService.getInstance().getChatClient()
-    .then((client) => client.getChannelByUniqueName(channelName)
-      .then((channel) => {
-        if (channel.channelState.status !== 'joined') {
-          return channel.join()
-        } else {
-          throw new Error('You are already joined.')
-        }
-      })
-      .catch((err) => {
-        if (err.message === 'Not Found') {
-          return client
-            .createChannel({ uniqueName: channelName, friendlyName: channelName })
-            .then(channel => channel.join())
-        }
-        showMessage({
-          message: err.message,
-          type: 'danger'
-        })
-      }))
-    .then(() => navigation.goBack())
+  const onPress = () =>
+    TwilioService.getInstance()
+      .getChatClient()
+      .then((client) =>
+        client
+          .getChannelByUniqueName(channelName)
+          .then((channel) => {
+            if (channel.channelState.status !== 'joined') {
+              return channel.join();
+            } else {
+              throw new Error('You are already joined.');
+            }
+          })
+          .catch((err) => {
+            if (err.message === 'Not Found') {
+              return client
+                .createChannel({ uniqueName: channelName, friendlyName: channelName })
+                .then((channel) => channel.join());
+            }
+            showMessage({
+              message: err.message,
+              type: 'danger',
+            });
+          }),
+      )
+      .then(() => navigation.goBack());
 
   return (
     <View style={styles.screen}>
@@ -45,7 +50,7 @@ export function ChatCreateScreen({ navigation }) {
         <Text style={styles.buttonText}>Create</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -77,10 +82,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.malibu,
     borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   buttonText: {
     fontSize: 17,
-    color: colors.white
-  }
+    color: colors.white,
+  },
 });
