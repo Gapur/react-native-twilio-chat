@@ -49,7 +49,7 @@ export class TwilioService {
   }
 
   serializeChannels(channels) {
-    return channels.map((channel) => this.serializeChannel(channel));
+    return channels.map(this.serializeChannel);
   }
 
   serializeChannel(channel) {
@@ -59,6 +59,23 @@ export class TwilioService {
       createdAt: channel.dateCreated,
       updatedAt: channel.dateUpdated,
       lastMessageTime: channel.lastMessage?.dateCreated ?? channel.dateUpdated ?? channel.dateCreated,
+    };
+  }
+
+  serializeMessages(messages) {
+    return messages.map(this.serializeMessage);
+  }
+
+  serializeMessage(message) {
+    return {
+      _id: message.sid,
+      text: message.body,
+      createdAt: message.dateCreated,
+      user: {
+        _id: message.memberSid,
+        name: message.author,
+      },
+      received: true,
     };
   }
 }

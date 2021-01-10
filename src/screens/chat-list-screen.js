@@ -65,7 +65,9 @@ export function ChatListScreen({ navigation }) {
         data={channels}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(routes.ChatRoom.name)}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id })}>
             <Image style={styles.cardIcon} source={images.message} />
             <Text style={styles.cardText}>{item.name}</Text>
           </TouchableOpacity>
