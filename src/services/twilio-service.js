@@ -47,4 +47,18 @@ export class TwilioService {
     }) 
     return TwilioService.chatClient
   }
+
+  serializeChannels(channels) {
+    return channels.map((channel) => this.serializeChannel(channel))
+  }
+
+  serializeChannel(channel) {
+    return {
+      id: channel.sid,
+      name: channel.friendlyName,
+      createdAt: channel.dateCreated,
+      updatedAt: channel.dateUpdated,
+      lastMessageTime: channel.lastMessage?.dateCreated ?? channel.dateUpdated ?? channel.dateCreated,
+    }
+  }
 }

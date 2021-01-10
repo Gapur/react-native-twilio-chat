@@ -1,27 +1,49 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import { showMessage } from 'react-native-flash-message'
 
 import { colors } from '../theme'
 import { images } from '../assets'
+import { TwilioService } from '../services/twilio-service'
 
 export function ChatCreateScreen({ navigation }) {
   const [channelName, setChannelName] = useState("")
 
-  const onPress = () => navigation.goBack()
+  const onPress = () => TwilioService.getInstance().getChatClient()
+    .then((client) => client.getChannelByUniqueName(channelName)
+      .then((channel) => {
+        if (channel.channelState.status !== 'joined') {
+          return channel.join()
+        } else {
+          throw new Error('You are already joined.')
+        }
+      })
+      .catch((err) => {
+        if (err.message === 'Not Found') {
+          return client
+            .createChannel({ uniqueName: channelName, friendlyName: channelName })
+            .then(channel => channel.join())
+        }
+        showMessage({
+          message: err.message,
+          type: 'danger'
+        })
+      }))
+    .then(() => navigation.goBack())
 
   return (
     <View style={styles.screen}>
       <Image style={styles.logo} source={images.message} />
-        <TextInput
-          value={channelName}
-          onChangeText={setChannelName}
-          style={styles.input}
-          placeholder="Channel Name"
-          placeholderTextColor={colors.ghost}
-        />
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-          <Text style={styles.buttonText}>Create</Text>
-        </TouchableOpacity>
+      <TextInput
+        value={channelName}
+        onChangeText={setChannelName}
+        style={styles.input}
+        placeholder="Channel Name"
+        placeholderTextColor={colors.ghost}
+      />
+      <TouchableOpacity style={styles.button} onPress={onPress}>
+        <Text style={styles.buttonText}>Create</Text>
+      </TouchableOpacity>
     </View>
   )
 }

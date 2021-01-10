@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect, useCallback } from 'react'
+import React, { useState, useLayoutEffect, useEffect, useCallback, useRef } from 'react'
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 
@@ -8,11 +8,10 @@ import { routes } from '../app'
 import { TwilioService } from '../services/twilio-service'
 import { getToken } from '../services/api-service'
 
-const CHANNEL_LIST = Array(7).fill(null).map((_, idx) => idx)
-
 export function ChatListScreen({ navigation }) {
   const [loading, setLoading] = useState(false)
   const [channels, setChannels] = useState([])
+  const channelPaginator = useRef()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -37,8 +36,8 @@ export function ChatListScreen({ navigation }) {
   const syncSubscribedChannels = useCallback(
     (client) =>
       client.getSubscribedChannels().then((paginator) => {
-        chatListPaginator.current = paginator
-        setChannels(chatListPaginator.current.items)
+        channelPaginator.current = paginator
+        setChannels(TwilioService.getInstance().serializeChannels(channelPaginator.current.items))
       }),
     [setChannels],
   )
@@ -61,17 +60,15 @@ export function ChatListScreen({ navigation }) {
     }
   }, [])
 
-  console.log('channels', channels)
-
   return (
     <View style={styles.screen}>
       <FlatList
         data={channels}
-        keyExtractor={item => item}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(routes.ChatRoom.name)}>
             <Image style={styles.cardIcon} source={images.message} />
-            <Text style={styles.cardText}>Channel {item}</Text>
+            <Text style={styles.cardText}>{item.name}</Text>
           </TouchableOpacity>
         )}
       />
