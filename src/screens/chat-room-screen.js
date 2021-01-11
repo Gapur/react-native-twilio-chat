@@ -15,9 +15,8 @@ export function ChatRoomScreen({ route }) {
   const configureChannelEvents = useCallback((channel) => {
     chatClientChannel.current = channel;
     chatClientChannel.current.on('messageAdded', (message) => {
-      console.log('new message', message);
       const serializedMessage = TwilioService.getInstance().serializeMessage(message);
-      const { giftedId } = serializedMessage.attributes;
+      const { giftedId } = message.attributes;
       if (giftedId) {
         setMessages((prevMessages) => prevMessages.map((m) => (m._id === giftedId ? serializedMessage : m)));
       } else {
@@ -48,7 +47,7 @@ export function ChatRoomScreen({ route }) {
 
   const onSend = useCallback((newMessages = []) => {
     const attributes = { giftedId: newMessages[0]._id };
-    setMessages((previousMessages) => GiftedChat.append(previousMessages, newMessages));
+    setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
     chatClientChannel.current?.sendMessage(newMessages[0].text, attributes);
   }, []);
 
@@ -59,9 +58,10 @@ export function ChatRoomScreen({ route }) {
       <GiftedChat
         messagesContainerStyle={styles.messageContainer}
         messages={messages}
+        renderAvatarOnTop
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: 1,
+          _id: 'Gapur',
         }}
       />
     </View>

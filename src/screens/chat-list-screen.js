@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useLayoutEffect, useEffect, useCallback, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
@@ -25,7 +25,11 @@ export function ChatListScreen({ navigation }) {
 
   const configureChannelEvents = useCallback((client) => {
     client.on('messageAdded', (message) => {
-      const lastMessageTime = message.dateCreated;
+      setChannels((prevChannels) =>
+        prevChannels.map((channel) =>
+          channel.id === message.channel.sid ? { ...channel, lastMessageTime: message.dateCreated } : channel,
+        ),
+      );
     });
     return client;
   }, []);
@@ -42,7 +46,7 @@ export function ChatListScreen({ navigation }) {
   useEffect(() => {
     setLoading(true);
     getToken()
-      .then((twilioToken) => TwilioService.getInstance().getChatClient(twilioToken.token))
+      .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
       .then(configureChannelEvents)
       .then(syncSubscribedChannels)
@@ -59,10 +63,16 @@ export function ChatListScreen({ navigation }) {
     };
   }, [configureChannelEvents, syncSubscribedChannels]);
 
+  const sortedChannels = useMemo(
+    () => channels.sort((channelA, channelB) => channelB.lastMessageTime - channelA.lastMessageTime),
+    [channels],
+  );
+
+  console.log(sortedChannels);
   return (
     <View style={styles.screen}>
       <FlatList
-        data={channels}
+        data={sortedChannels}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
