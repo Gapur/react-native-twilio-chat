@@ -5,11 +5,14 @@ import { showMessage } from 'react-native-flash-message';
 import { colors } from '../theme';
 import { images } from '../assets';
 import { TwilioService } from '../services/twilio-service';
+import { LoadingOverlay } from '../components';
 
 export function ChatCreateScreen({ navigation }) {
   const [channelName, setChannelName] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const onPress = () =>
+  const onPress = () => {
+    setLoading(true);
     TwilioService.getInstance()
       .getChatClient()
       .then((client) =>
@@ -34,7 +37,9 @@ export function ChatCreateScreen({ navigation }) {
             });
           }),
       )
-      .then(() => navigation.goBack());
+      .then(() => navigation.goBack())
+      .finally(() => setLoading(false));
+  };
 
   return (
     <View style={styles.screen}>
@@ -49,6 +54,7 @@ export function ChatCreateScreen({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={onPress}>
         <Text style={styles.buttonText}>Create</Text>
       </TouchableOpacity>
+      {loading && <LoadingOverlay />}
     </View>
   );
 }
