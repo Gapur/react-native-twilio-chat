@@ -8,7 +8,8 @@ import { routes } from '../app';
 import { TwilioService } from '../services/twilio-service';
 import { getToken } from '../services/api-service';
 
-export function ChatListScreen({ navigation }) {
+export function ChatListScreen({ navigation, route }) {
+  const { username } = route.params;
   const [loading, setLoading] = useState(false);
   const [channels, setChannels] = useState([]);
   const channelPaginator = useRef();
@@ -45,7 +46,7 @@ export function ChatListScreen({ navigation }) {
 
   useEffect(() => {
     setLoading(true);
-    getToken()
+    getToken(username)
       .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
       .then(configureChannelEvents)
@@ -61,7 +62,7 @@ export function ChatListScreen({ navigation }) {
     return () => {
       TwilioService.getInstance().clientShutdown();
     };
-  }, [configureChannelEvents, syncSubscribedChannels]);
+  }, [username, configureChannelEvents, syncSubscribedChannels]);
 
   const sortedChannels = useMemo(
     () => channels.sort((channelA, channelB) => channelB.lastMessageTime - channelA.lastMessageTime),

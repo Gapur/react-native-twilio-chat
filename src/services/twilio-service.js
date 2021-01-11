@@ -28,6 +28,7 @@ export class TwilioService {
 
   clientShutdown() {
     TwilioService.chatClient?.shutdown();
+    TwilioService.chatClient = null;
   }
 
   addTokenListener(getToken) {
@@ -72,7 +73,7 @@ export class TwilioService {
       text: message.body,
       createdAt: message.dateCreated,
       user: {
-        _id: message.memberSid,
+        _id: message.author,
         name: message.author,
       },
       received: true,

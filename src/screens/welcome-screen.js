@@ -1,32 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
 
 import { colors } from '../theme';
 import { routes } from '../app';
 import { images } from '../assets';
-import { TwilioService } from '../services/twilio-service';
-import { getToken } from '../services/api-service';
-import { LoadingOverlay } from '../components';
 
 export function WelcomeScreen({ navigation }) {
   const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const onPress = () => {
-    setLoading(true);
-    getToken(username)
-      .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
-      .then(() => TwilioService.getInstance().addTokenListener(getToken))
-      .then(() => navigation.navigate(routes.ChatList.name))
-      .catch((err) =>
-        showMessage({
-          message: err.message,
-          type: 'danger',
-        }),
-      )
-      .finally(() => setLoading(false));
-  };
 
   return (
     <View style={styles.screen}>
@@ -39,10 +19,12 @@ export function WelcomeScreen({ navigation }) {
         placeholder="Username"
         placeholderTextColor={colors.ghost}
       />
-      <TouchableOpacity disabled={!username} style={styles.button} onPress={onPress}>
+      <TouchableOpacity
+        disabled={!username}
+        style={styles.button}
+        onPress={() => navigation.navigate(routes.ChatList.name, { username })}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      {loading && <LoadingOverlay />}
     </View>
   );
 }
