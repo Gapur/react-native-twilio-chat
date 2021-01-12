@@ -3,12 +3,12 @@ import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react
 import { showMessage } from 'react-native-flash-message';
 
 import { colors } from '../../theme';
-import { images } from '../../assets';
 import { routes } from '../../app';
 import { TwilioService } from '../../services/twilio-service';
 import { getToken } from '../../services/api-service';
 import { ChatListLoader } from './components/chat-list-loader';
 import { ChatListEmpty } from './components/chat-list-empty';
+import { ChatListItem } from './components/chat-list-item';
 
 export function ChatListScreen({ navigation, route }) {
   const { username } = route.params;
@@ -79,12 +79,10 @@ export function ChatListScreen({ navigation, route }) {
           data={sortedChannels}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id })}>
-              <Image style={styles.cardIcon} source={images.message} />
-              <Text style={styles.cardText}>{item.name}</Text>
-            </TouchableOpacity>
+            <ChatListItem
+              channel={item}
+              onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id })}
+            />
           )}
           ListEmptyComponent={<ChatListEmpty />}
         />
@@ -110,33 +108,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 24,
     color: colors.white,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: colors.windsor,
-    backgroundColor: colors.white,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 1,
-    borderRadius: 10,
-    marginHorizontal: 12,
-    marginTop: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  cardIcon: {
-    height: 44,
-    width: 44,
-  },
-  cardText: {
-    fontSize: 16,
-    color: colors.cinder,
-    marginLeft: 24,
-    marginRight: 8,
   },
 });
