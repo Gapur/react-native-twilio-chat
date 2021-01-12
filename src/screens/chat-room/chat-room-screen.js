@@ -3,12 +3,14 @@ import { StyleSheet, View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { showMessage } from 'react-native-flash-message';
 
-import { colors } from '../theme';
-import { TwilioService } from '../services/twilio-service';
+import { colors } from '../../theme';
+import { TwilioService } from '../../services/twilio-service';
+import { ChatLoader } from './components/chat-loader';
 
 export function ChatRoomScreen({ route }) {
   const { channelId } = route.params;
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const chatClientChannel = useRef();
   const chatMessagesPaginator = useRef();
 
@@ -42,7 +44,8 @@ export function ChatRoomScreen({ route }) {
           message: err.message,
           type: 'danger',
         }),
-      );
+      )
+      .finally(() => setLoading(false));
   }, [channelId, configureChannelEvents]);
 
   const onSend = useCallback((newMessages = []) => {
@@ -51,19 +54,21 @@ export function ChatRoomScreen({ route }) {
     chatClientChannel.current?.sendMessage(newMessages[0].text, attributes);
   }, []);
 
-  console.log('message', messages);
-
   return (
     <View style={styles.screen}>
-      <GiftedChat
-        messagesContainerStyle={styles.messageContainer}
-        messages={messages}
-        renderAvatarOnTop
-        onSend={(messages) => onSend(messages)}
-        user={{
-          _id: 'Gapur',
-        }}
-      />
+      {loading ? (
+        <ChatLoader />
+      ) : (
+        <GiftedChat
+          messagesContainerStyle={styles.messageContainer}
+          messages={messages}
+          renderAvatarOnTop
+          onSend={(messages) => onSend(messages)}
+          user={{
+            _id: 'Gapur',
+          }}
+        />
+      )}
     </View>
   );
 }

@@ -2,11 +2,11 @@ import React, { useState, useLayoutEffect, useEffect, useCallback, useRef, useMe
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
-import { colors } from '../theme';
-import { images } from '../assets';
-import { routes } from '../app';
-import { TwilioService } from '../services/twilio-service';
-import { getToken } from '../services/api-service';
+import { colors } from '../../theme';
+import { images } from '../../assets';
+import { routes } from '../../app';
+import { TwilioService } from '../../services/twilio-service';
+import { getToken } from '../../services/api-service';
 
 export function ChatListScreen({ navigation, route }) {
   const { username } = route.params;
@@ -69,7 +69,6 @@ export function ChatListScreen({ navigation, route }) {
     [channels],
   );
 
-  console.log(sortedChannels);
   return (
     <View style={styles.screen}>
       <FlatList

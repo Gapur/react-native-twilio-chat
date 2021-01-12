@@ -3,10 +3,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import FlashMessage from 'react-native-flash-message';
 
-import { WelcomeScreen } from './screens/welcome-screen';
-import { ChatListScreen } from './screens/chat-list-screen';
-import { ChatRoomScreen } from './screens/chat-room-screen';
-import { ChatCreateScreen } from './screens/chat-create-screen';
+import { WelcomeScreen } from './screens/welcome/welcome-screen';
+import { ChatListScreen } from './screens/chat-list/chat-list-screen';
+import { ChatRoomScreen } from './screens/chat-room/chat-room-screen';
+import { ChatCreateScreen } from './screens/chat-create/chat-create-screen';
 
 import { colors } from './theme';
 

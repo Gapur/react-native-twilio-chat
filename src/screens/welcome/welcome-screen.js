@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native';
 
-import { colors } from '../theme';
-import { routes } from '../app';
-import { images } from '../assets';
+import { colors } from '../../theme';
+import { routes } from '../../app';
+import { images } from '../../assets';
 
 export function WelcomeScreen({ navigation }) {
   const [username, setUsername] = useState('');

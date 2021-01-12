@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
-import { colors } from '../theme';
-import { images } from '../assets';
-import { TwilioService } from '../services/twilio-service';
-import { LoadingOverlay } from '../components';
+import { colors } from '../../theme';
+import { images } from '../../assets';
+import { TwilioService } from '../../services/twilio-service';
+import { LoadingOverlay } from '../../components';
 
 export function ChatCreateScreen({ navigation }) {
   const [channelName, setChannelName] = useState('');
