@@ -2,10 +2,12 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
+import { colors } from '../../../theme';
+
 export const ChatLoader = () => {
   return (
-    <SkeletonPlaceholder speed={1800}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <SkeletonPlaceholder speed={1800}>
         <View style={{ ...styles.item, width: 120 }} />
         <View style={{ ...styles.item, width: 180 }} />
         <View style={{ ...styles.item, width: 100 }} />
@@ -17,13 +19,14 @@ export const ChatLoader = () => {
         <View style={{ ...styles.item, width: 120 }} />
         <View style={styles.item} />
         <View style={{ ...styles.item, width: 90 }} />
-      </View>
-    </SkeletonPlaceholder>
+      </SkeletonPlaceholder>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: colors.whisper,
     paddingHorizontal: 16,
     paddingTop: 20,
   },
