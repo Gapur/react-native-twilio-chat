@@ -7,10 +7,12 @@ import { images } from '../../assets';
 import { routes } from '../../app';
 import { TwilioService } from '../../services/twilio-service';
 import { getToken } from '../../services/api-service';
+import { ChatListLoader } from './components/chat-list-loader';
+import { ChatListEmpty } from './components/chat-list-empty';
 
 export function ChatListScreen({ navigation, route }) {
   const { username } = route.params;
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [channels, setChannels] = useState([]);
   const channelPaginator = useRef();
 
@@ -45,7 +47,6 @@ export function ChatListScreen({ navigation, route }) {
   );
 
   useEffect(() => {
-    setLoading(true);
     getToken(username)
       .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
@@ -71,18 +72,23 @@ export function ChatListScreen({ navigation, route }) {
 
   return (
     <View style={styles.screen}>
-      <FlatList
-        data={sortedChannels}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id })}>
-            <Image style={styles.cardIcon} source={images.message} />
-            <Text style={styles.cardText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      {loading ? (
+        <ChatListLoader />
+      ) : (
+        <FlatList
+          data={sortedChannels}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id })}>
+              <Image style={styles.cardIcon} source={images.message} />
+              <Text style={styles.cardText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={<ChatListEmpty />}
+        />
+      )}
     </View>
   );
 }
