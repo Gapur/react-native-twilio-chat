@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.whisper,
+    backgroundColor: colors.snow,
   },
   logo: {
     width: 120,

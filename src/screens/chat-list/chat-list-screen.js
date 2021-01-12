@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useCallback, useRef, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
 import { colors } from '../../theme';
@@ -81,7 +81,7 @@ export function ChatListScreen({ navigation, route }) {
           renderItem={({ item }) => (
             <ChatListItem
               channel={item}
-              onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id })}
+              onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id, identity: username })}
             />
           )}
           ListEmptyComponent={<ChatListEmpty />}
@@ -94,7 +94,7 @@ export function ChatListScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.whisper,
+    backgroundColor: colors.snow,
   },
   addButton: {
     height: 24,

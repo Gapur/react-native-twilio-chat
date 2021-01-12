@@ -8,7 +8,7 @@ import { TwilioService } from '../../services/twilio-service';
 import { ChatLoader } from './components/chat-loader';
 
 export function ChatRoomScreen({ route }) {
-  const { channelId } = route.params;
+  const { channelId, identity } = route.params;
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const chatClientChannel = useRef();
@@ -64,9 +64,7 @@ export function ChatRoomScreen({ route }) {
           messages={messages}
           renderAvatarOnTop
           onSend={(messages) => onSend(messages)}
-          user={{
-            _id: 'Gapur',
-          }}
+          user={{ _id: identity }}
         />
       )}
     </View>
@@ -79,6 +77,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   messageContainer: {
-    backgroundColor: colors.whisper,
+    backgroundColor: colors.snow,
   },
 });
