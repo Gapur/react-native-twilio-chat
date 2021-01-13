@@ -9,6 +9,7 @@ import { ChatRoomScreen } from './screens/chat-room/chat-room-screen';
 import { ChatCreateScreen } from './screens/chat-create/chat-create-screen';
 
 import { colors } from './theme';
+import { AppProvider } from './app-context';
 
 const Stack = createStackNavigator();
 
@@ -45,29 +46,31 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name={routes.Welcome.name}
-          options={screenOptions(routes.Welcome.title)}
-          component={WelcomeScreen}
-        />
-        <Stack.Screen
-          name={routes.ChatList.name}
-          options={screenOptions(routes.ChatList.title)}
-          component={ChatListScreen}
-        />
-        <Stack.Screen
-          name={routes.ChatRoom.name}
-          options={screenOptions(routes.ChatRoom.title)}
-          component={ChatRoomScreen}
-        />
-        <Stack.Screen
-          name={routes.ChatCreat.name}
-          options={screenOptions(routes.ChatCreat.title)}
-          component={ChatCreateScreen}
-        />
-      </Stack.Navigator>
-      <FlashMessage position="bottom" />
+      <AppProvider>
+        <Stack.Navigator>
+          <Stack.Screen
+            name={routes.Welcome.name}
+            options={screenOptions(routes.Welcome.title)}
+            component={WelcomeScreen}
+          />
+          <Stack.Screen
+            name={routes.ChatList.name}
+            options={screenOptions(routes.ChatList.title)}
+            component={ChatListScreen}
+          />
+          <Stack.Screen
+            name={routes.ChatRoom.name}
+            options={screenOptions(routes.ChatRoom.title)}
+            component={ChatRoomScreen}
+          />
+          <Stack.Screen
+            name={routes.ChatCreat.name}
+            options={screenOptions(routes.ChatCreat.title)}
+            component={ChatCreateScreen}
+          />
+        </Stack.Navigator>
+        <FlashMessage position="bottom" />
+      </AppProvider>
     </NavigationContainer>
   );
 }

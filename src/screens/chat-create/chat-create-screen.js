@@ -6,10 +6,12 @@ import { colors } from '../../theme';
 import { images } from '../../assets';
 import { TwilioService } from '../../services/twilio-service';
 import { LoadingOverlay } from '../../components';
+import { useApp } from '../../app-context';
 
 export function ChatCreateScreen({ navigation }) {
   const [channelName, setChannelName] = useState('');
   const [loading, setLoading] = useState(false);
+  const { channels, updateChannels } = useApp();
 
   const onPress = () => {
     setLoading(true);
@@ -21,8 +23,6 @@ export function ChatCreateScreen({ navigation }) {
           .then((channel) => {
             if (channel.channelState.status !== 'joined') {
               return channel.join();
-            } else {
-              throw new Error('You are already joined.');
             }
           })
           .catch((err) => {

@@ -9,11 +9,12 @@ import { getToken } from '../../services/api-service';
 import { ChatListLoader } from './components/chat-list-loader';
 import { ChatListEmpty } from './components/chat-list-empty';
 import { ChatListItem } from './components/chat-list-item';
+import { useApp } from '../../app-context';
 
 export function ChatListScreen({ navigation, route }) {
   const { username } = route.params;
   const [loading, setLoading] = useState(true);
-  const [channels, setChannels] = useState([]);
+  const { channels, updateChannels } = useApp();
   const channelPaginator = useRef();
 
   useLayoutEffect(() => {
@@ -26,29 +27,33 @@ export function ChatListScreen({ navigation, route }) {
     });
   }, [navigation]);
 
-  const configureChannelEvents = useCallback((client) => {
-    client.on('messageAdded', (message) => {
-      setChannels((prevChannels) =>
-        prevChannels.map((channel) =>
-          channel.id === message.channel.sid ? { ...channel, lastMessageTime: message.dateCreated } : channel,
-        ),
-      );
-    });
-    return client;
-  }, []);
+  const configureChannelEvents = useCallback(
+    (client) => {
+      client.on('messageAdded', (message) => {
+        updateChannels((prevChannels) =>
+          prevChannels.map((channel) =>
+            channel.id === message.channel.sid ? { ...channel, lastMessageTime: message.dateCreated } : channel,
+          ),
+        );
+      });
+      return client;
+    },
+    [updateChannels],
+  );
 
   const syncSubscribedChannels = useCallback(
     (client) =>
       client.getSubscribedChannels().then((paginator) => {
         channelPaginator.current = paginator;
-        setChannels(TwilioService.getInstance().serializeChannels(channelPaginator.current.items));
+        const newChannels = TwilioService.getInstance().serializeChannels(channelPaginator.current.items);
+        updateChannels(newChannels);
       }),
-    [setChannels],
+    [updateChannels],
   );
 
   useEffect(() => {
     getToken(username)
-      .then((twilioUser) => TwilioService.getInstance().getChatClient(twilioUser.data.jwt))
+      .then((token) => TwilioService.getInstance().getChatClient(token))
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
       .then(configureChannelEvents)
       .then(syncSubscribedChannels)

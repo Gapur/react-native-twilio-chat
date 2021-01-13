@@ -36,15 +36,11 @@ export class TwilioService {
       throw new Error('Twilio client is null or undefined');
     }
     TwilioService.chatClient.on('tokenAboutToExpire', () => {
-      getToken().then((twilioUser) => {
-        TwilioService.chatClient.updateToken(twilioUser.data.jwt);
-      });
+      getToken().then((token) => TwilioService.chatClient.updateToken(token));
     });
 
     TwilioService.chatClient.on('tokenExpired', () => {
-      getToken().then((twilioUser) => {
-        TwilioService.chatClient.updateToken(twilioUser.data.jwt);
-      });
+      getToken().then((token) => TwilioService.chatClient.updateToken(token));
     });
     return TwilioService.chatClient;
   }
