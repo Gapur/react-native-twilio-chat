@@ -39,12 +39,7 @@ export function ChatRoomScreen({ route }) {
         const serializedMessages = TwilioService.getInstance().serializeMessages(paginator.items);
         setMessages(serializedMessages);
       })
-      .catch((err) =>
-        showMessage({
-          message: err.message,
-          type: 'danger',
-        }),
-      )
+      .catch((err) => showMessage({ message: err.message, type: 'danger' }))
       .finally(() => setLoading(false));
   }, [channelId, configureChannelEvents]);
 

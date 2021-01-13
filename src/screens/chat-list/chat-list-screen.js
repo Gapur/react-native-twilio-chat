@@ -57,12 +57,7 @@ export function ChatListScreen({ navigation, route }) {
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
       .then(configureChannelEvents)
       .then(syncSubscribedChannels)
-      .catch((err) =>
-        showMessage({
-          message: err.message,
-          type: 'danger',
-        }),
-      )
+      .catch((err) => showMessage({ message: err.message, type: 'danger' }))
       .finally(() => setLoading(false));
 
     return () => {

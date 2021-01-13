@@ -8,7 +8,7 @@ import { TwilioService } from '../../services/twilio-service';
 import { LoadingOverlay } from '../../components';
 import { useApp } from '../../app-context';
 
-export function ChatCreateScreen({ navigation }) {
+export function ChatCreateScreen() {
   const [channelName, setChannelName] = useState('');
   const [loading, setLoading] = useState(false);
   const { channels, updateChannels } = useApp();
@@ -25,19 +25,15 @@ export function ChatCreateScreen({ navigation }) {
               return channel.join();
             }
           })
-          .catch((err) => {
-            if (err.message === 'Not Found') {
-              return client
-                .createChannel({ uniqueName: channelName, friendlyName: channelName })
-                .then((channel) => channel.join());
-            }
-            showMessage({
-              message: err.message,
-              type: 'danger',
-            });
-          }),
+          .catch(() =>
+            client.createChannel({ uniqueName: channelName, friendlyName: channelName }).then((channel) => {
+              updateChannels(channels.concat(TwilioService.getInstance().serializeChannel(channel)));
+              channel.join();
+            }),
+          ),
       )
-      .then(() => navigation.goBack())
+      .then(() => showMessage({ message: 'You have joined.' }))
+      .catch((err) => showMessage({ message: err.message, type: 'danger' }))
       .finally(() => setLoading(false));
   };
 
