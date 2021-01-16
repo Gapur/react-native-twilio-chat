@@ -13,21 +13,23 @@ export function ChatCreateScreen() {
   const [loading, setLoading] = useState(false);
   const { channels, updateChannels } = useApp();
 
-  const onPress = () => {
+  const onAddChannel = (channel) => {
+    const newChannel = TwilioService.getInstance().parseChannel(channel);
+    updateChannels(channels.concat(newChannel));
+  };
+
+  const onCreateOrJoin = () => {
     setLoading(true);
     TwilioService.getInstance()
       .getChatClient()
       .then((client) =>
         client
           .getChannelByUniqueName(channelName)
-          .then((channel) => {
-            if (channel.channelState.status !== 'joined') {
-              return channel.join();
-            }
-          })
+          .then((channel) => (channel.channelState.status !== 'joined' ? channel.join() : channel))
+          .then(onAddChannel)
           .catch(() =>
             client.createChannel({ uniqueName: channelName, friendlyName: channelName }).then((channel) => {
-              updateChannels(channels.concat(TwilioService.getInstance().serializeChannel(channel)));
+              onAddChannel(channel);
               channel.join();
             }),
           ),
@@ -47,8 +49,8 @@ export function ChatCreateScreen() {
         placeholder="Channel Name"
         placeholderTextColor={colors.ghost}
       />
-      <TouchableOpacity style={styles.button} onPress={onPress}>
-        <Text style={styles.buttonText}>Create</Text>
+      <TouchableOpacity style={styles.button} onPress={onCreateOrJoin}>
+        <Text style={styles.buttonText}>Create Or Join</Text>
       </TouchableOpacity>
       {loading && <LoadingOverlay />}
     </View>

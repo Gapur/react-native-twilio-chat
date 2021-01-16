@@ -36,20 +36,20 @@ export class TwilioService {
       throw new Error('Twilio client is null or undefined');
     }
     TwilioService.chatClient.on('tokenAboutToExpire', () => {
-      getToken().then((token) => TwilioService.chatClient.updateToken(token));
+      getToken().then(TwilioService.chatClient.updateToken);
     });
 
     TwilioService.chatClient.on('tokenExpired', () => {
-      getToken().then((token) => TwilioService.chatClient.updateToken(token));
+      getToken().then(TwilioService.chatClient.updateToken);
     });
     return TwilioService.chatClient;
   }
 
-  serializeChannels(channels) {
-    return channels.map(this.serializeChannel);
+  parseChannels(channels) {
+    return channels.map(this.parseChannel);
   }
 
-  serializeChannel(channel) {
+  parseChannel(channel) {
     return {
       id: channel.sid,
       name: channel.friendlyName,
@@ -59,11 +59,11 @@ export class TwilioService {
     };
   }
 
-  serializeMessages(messages) {
-    return messages.map(this.serializeMessage).reverse();
+  parseMessages(messages) {
+    return messages.map(this.parseMessage).reverse();
   }
 
-  serializeMessage(message) {
+  parseMessage(message) {
     return {
       _id: message.sid,
       text: message.body,

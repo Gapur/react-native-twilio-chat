@@ -6,10 +6,11 @@ import { colors } from '../../theme';
 import { routes } from '../../app';
 import { TwilioService } from '../../services/twilio-service';
 import { getToken } from '../../services/api-service';
+import { useApp } from '../../app-context';
+
 import { ChatListLoader } from './components/chat-list-loader';
 import { ChatListEmpty } from './components/chat-list-empty';
 import { ChatListItem } from './components/chat-list-item';
-import { useApp } from '../../app-context';
 
 export function ChatListScreen({ navigation, route }) {
   const { username } = route.params;
@@ -27,7 +28,7 @@ export function ChatListScreen({ navigation, route }) {
     });
   }, [navigation]);
 
-  const configureChannelEvents = useCallback(
+  const setChannelEvents = useCallback(
     (client) => {
       client.on('messageAdded', (message) => {
         updateChannels((prevChannels) =>
@@ -41,11 +42,11 @@ export function ChatListScreen({ navigation, route }) {
     [updateChannels],
   );
 
-  const syncSubscribedChannels = useCallback(
+  const getSubscribedChannels = useCallback(
     (client) =>
       client.getSubscribedChannels().then((paginator) => {
         channelPaginator.current = paginator;
-        const newChannels = TwilioService.getInstance().serializeChannels(channelPaginator.current.items);
+        const newChannels = TwilioService.getInstance().parseChannels(channelPaginator.current.items);
         updateChannels(newChannels);
       }),
     [updateChannels],
@@ -55,15 +56,13 @@ export function ChatListScreen({ navigation, route }) {
     getToken(username)
       .then((token) => TwilioService.getInstance().getChatClient(token))
       .then(() => TwilioService.getInstance().addTokenListener(getToken))
-      .then(configureChannelEvents)
-      .then(syncSubscribedChannels)
+      .then(setChannelEvents)
+      .then(getSubscribedChannels)
       .catch((err) => showMessage({ message: err.message, type: 'danger' }))
       .finally(() => setLoading(false));
 
-    return () => {
-      TwilioService.getInstance().clientShutdown();
-    };
-  }, [username, configureChannelEvents, syncSubscribedChannels]);
+    return () => TwilioService.getInstance().clientShutdown();
+  }, [username, setChannelEvents, getSubscribedChannels]);
 
   const sortedChannels = useMemo(
     () => channels.sort((channelA, channelB) => channelB.lastMessageTime - channelA.lastMessageTime),

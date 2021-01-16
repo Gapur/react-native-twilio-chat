@@ -14,15 +14,15 @@ export function ChatRoomScreen({ route }) {
   const chatClientChannel = useRef();
   const chatMessagesPaginator = useRef();
 
-  const configureChannelEvents = useCallback((channel) => {
+  const setChannelEvents = useCallback((channel) => {
     chatClientChannel.current = channel;
     chatClientChannel.current.on('messageAdded', (message) => {
-      const serializedMessage = TwilioService.getInstance().serializeMessage(message);
+      const newMessage = TwilioService.getInstance().parseMessage(message);
       const { giftedId } = message.attributes;
       if (giftedId) {
-        setMessages((prevMessages) => prevMessages.map((m) => (m._id === giftedId ? serializedMessage : m)));
+        setMessages((prevMessages) => prevMessages.map((m) => (m._id === giftedId ? newMessage : m)));
       } else {
-        setMessages((prevMessages) => [serializedMessage, ...prevMessages]);
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
       }
     });
     return chatClientChannel.current;
@@ -32,16 +32,16 @@ export function ChatRoomScreen({ route }) {
     TwilioService.getInstance()
       .getChatClient()
       .then((client) => client.getChannelBySid(channelId))
-      .then((channel) => configureChannelEvents(channel))
+      .then((channel) => setChannelEvents(channel))
       .then((currentChannel) => currentChannel.getMessages())
       .then((paginator) => {
         chatMessagesPaginator.current = paginator;
-        const serializedMessages = TwilioService.getInstance().serializeMessages(paginator.items);
-        setMessages(serializedMessages);
+        const newMessages = TwilioService.getInstance().parseMessages(paginator.items);
+        setMessages(newMessages);
       })
       .catch((err) => showMessage({ message: err.message, type: 'danger' }))
       .finally(() => setLoading(false));
-  }, [channelId, configureChannelEvents]);
+  }, [channelId, setChannelEvents]);
 
   const onSend = useCallback((newMessages = []) => {
     const attributes = { giftedId: newMessages[0]._id };
