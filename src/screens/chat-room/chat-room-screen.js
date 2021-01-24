@@ -20,9 +20,12 @@ export function ChatRoomScreen({ route }) {
       const newMessage = TwilioService.getInstance().parseMessage(message);
       const { giftedId } = message.attributes;
       if (giftedId) {
-        setMessages((prevMessages) => prevMessages.map((m) => (m._id === giftedId ? newMessage : m)));
-      } else {
-        setMessages((prevMessages) => [newMessage, ...prevMessages]);
+        setMessages((prevMessages) => {
+          if (prevMessages.some(({ _id }) => _id === giftedId)) {
+            return prevMessages.map((m) => (m._id === giftedId ? newMessage : m));
+          }
+          return [newMessage, ...prevMessages];
+        });
       }
     });
     return chatClientChannel.current;
