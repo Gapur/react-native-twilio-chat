@@ -4,9 +4,9 @@
   React Native Twilio Chat
 </h1>
 
-Build a Chat App with Twilio and React-Native
+Build a Twilio-Powered Chat App Using React Native
 
-Best Practices Using Twilio Programmable Chat
+Quickly get started with a Twilio Programmable Chat
 
 Twilio Programmable Chat makes it easy for you to add chat features into your web and mobile apps without building or scaling a real-time chat backend. Chat has all the necessary APIs and features to integrate with your business logic to ensure you are in control.
 
@@ -38,25 +38,25 @@ To set up our backend for Chat, we’ll need four values from our Twilio account
 
 Now, if your account is ready, you can find your account SID on the [Twilio Console](https://www.twilio.com/console). You should copy and paste it as the value TWILIO_ACCOUNT_SID to the .env file.
 
-<p align="center">
+<p>
   <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/account_sid.png">
 </p>
 
 Next, We need to generate an API key and API secret by navigating to Settings > API Keys > New API Key.
 
-<p align="center">
+<p>
   <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/new_api_key.png">
 </p>
 
 If you create these things successfully, let’s copy and paste the SID and secret as the values TWILIO_API_KEY and TWILIO_API_SECRET.
 
-<p align="center">
+<p>
   <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/sid_and_secret_key.png">
 </p>
 
 Last, we need to create a new Chat Service by navigating to All Products & Services > Programmable Chat > Services > Chat Services.
 
-<p align="center">
+<p>
   <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat_service.png">
 </p>
 
@@ -118,6 +118,174 @@ That’s it for our server. Now, We can run our server with the following comman
 ```sh
 node server.js
 ```
+
+## React Native Navigation
+
+In order to show you the Twilio Programmable Chat in action, I’m going to build a full-featured app on React Native. Our app will have four screens: WelcomeScreen, ChatListScreen, ChatRoomScreen, and ChatCreateScreen.
+
+We need a router to navigate between screens in our React Native app. So I’m going to use the react-native-navigation library. React Native Navigation provides 100% native-platform navigation on both iOS and Android. We should install it with the required packages:
+
+```sh
+yarn add @react-navigation/native react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view @react-navigation/stack
+```
+
+## Welcome Screen
+
+We’ll start with the welcome screen. Let’s create welcome-screen.js and add the following code:
+
+```js
+export function WelcomeScreen({ navigation }) {
+  const [username, setUsername] = useState('');
+
+  return (
+    <View style={styles.screen}>
+      <Image style={styles.logo} source={images.logo} />
+      <Text style={styles.titleText}>Welcome to Twilio Chat</Text>
+      <TextInput
+        value={username}
+        onChangeText={setUsername}
+        style={styles.input}
+        placeholder="Username"
+        placeholderTextColor={colors.ghost}
+      />
+      <TouchableOpacity
+        disabled={!username}
+        style={styles.button}
+        onPress={() => navigation.navigate(routes.ChatList.name, { username })}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+```
+
+We’ll use the username to generate the Twilio access token.
+
+<p>
+  <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/welcome-screen.png">
+</p>
+
+## Chat-Create Screen
+
+The next step is to create a chat client which is what we needed the token for. I’m going to use twilio-chat to connect and work with the [Twilio SDK](http://media.twiliocdn.com/sdk/js/chat/releases/4.0.0/docs/index.html). Let’s install and test it:
+
+```sh
+yarn add twilio-chat events
+```
+
+Then, we’ll create a getToken method for handling communication with our token server.
+
+```js
+const getToken = (username) =>
+  axios.get(`http://localhost:3001/token/${username}`).then((twilioUser) => twilioUser.data.jwt);
+```
+
+Now, we should create the Twilio Chat Client instance with a token by calling [create(token)](http://media.twiliocdn.com/sdk/js/chat/releases/4.0.0/docs/Client.html#.create__anchor). Also, we have two events to help manage our token expiration: tokenAboutToExpire and tokenExpired.
+
+Let’s create a twilio-service.js file to prevent the repeat initializing of the Twilio Chat Client across all screens. We’ll create and store a single Twilio service client instance and use it on each screen.
+
+```js
+import { Client } from 'twilio-chat';
+
+export class TwilioService {
+  static serviceInstance;
+  static chatClient;
+
+  // create a single service instance
+  static getInstance() {
+    if (!TwilioService.serviceInstance) {
+      TwilioService.serviceInstance = new TwilioService();
+    }
+    return TwilioService.serviceInstance;
+  }
+
+  // use chat client if don't have instance, create a new chat client
+  async getChatClient(twilioToken) {
+    if (!TwilioService.chatClient && !twilioToken) {
+      throw new Error('Twilio token is null or undefined');
+    }
+    if (!TwilioService.chatClient && twilioToken) {
+      return Client.create(twilioToken).then((client) => {
+        TwilioService.chatClient = client;
+        return TwilioService.chatClient;
+      });
+    }
+    return Promise.resolve().then(() => TwilioService.chatClient);
+  }
+
+  // manage our token expiration
+  addTokenListener(getToken) {
+    if (!TwilioService.chatClient) {
+      throw new Error('Twilio client is null or undefined');
+    }
+    TwilioService.chatClient.on('tokenAboutToExpire', () => {
+      getToken().then(TwilioService.chatClient.updateToken);
+    });
+
+    TwilioService.chatClient.on('tokenExpired', () => {
+      getToken().then(TwilioService.chatClient.updateToken);
+    });
+    return TwilioService.chatClient;
+  }
+  
+  // gracefully shutting down library instance.
+  clientShutdown() {
+    TwilioService.chatClient?.shutdown();
+    TwilioService.chatClient = null;
+  }
+}
+```
+
+Last, I’ll create chat-create-screen.js with the following code:
+
+```js
+export function ChatCreateScreen() {
+  const [channelName, setChannelName] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const onCreateOrJoin = () => {
+    setLoading(true);
+    TwilioService.getInstance()
+      .getChatClient()
+      .then((client) =>
+        client
+          .getChannelByUniqueName(channelName)
+          .then((channel) => (channel.channelState.status !== 'joined' ? channel.join() : channel))
+          .catch(() =>
+            client.createChannel({ uniqueName: channelName, friendlyName: channelName }).then((channel) => channel.join()),
+          ),
+      )
+      .then(() => showMessage({ message: 'You have joined.' }))
+      .catch((err) => showMessage({ message: err.message, type: 'danger' }))
+      .finally(() => setLoading(false));
+  };
+
+  return (
+    <View style={styles.screen}>
+      <Image style={styles.logo} source={images.message} />
+      <TextInput
+        value={channelName}
+        onChangeText={setChannelName}
+        style={styles.input}
+        placeholder="Channel Name"
+        placeholderTextColor={colors.ghost}
+      />
+      <TouchableOpacity style={styles.button} onPress={onCreateOrJoin}>
+        <Text style={styles.buttonText}>Create Or Join</Text>
+      </TouchableOpacity>
+      {loading && <LoadingOverlay />}
+    </View>
+  );
+}
+```
+
+Once the chat client is initialized, we can create a new chat channel with [createChannel({ uniqueName, friendlyName })](http://media.twiliocdn.com/sdk/js/chat/releases/4.0.0/docs/Client.html#createChannel__anchor) or join an existing channel with the join() method. To join an existing channel, we have to get the channel from Twilio by using the [getChannelByUniqueName()](http://media.twiliocdn.com/sdk/js/chat/releases/4.0.0/docs/Client.html#getChannelByUniqueName__anchor) method and passing the room name to it.
+
+If the channel doesn’t exist, an exception will be thrown. If it does exist, the method will return the channel resource, and from there, the channel can be joined.
+
+<p align="center">
+  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-create-screen.gif">
+</p>
 
 ## Let’s Demo Our Twilio Chat App
 
