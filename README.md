@@ -398,11 +398,95 @@ Therefore I subscribed to the messageAdded event, which fires when a new message
   <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-list-screen.png">
 </p>
 
+## Chat Room Screen
+
+I’m going to use [react-native-gifted-chat](https://github.com/FaridSafi/react-native-gifted-chat) for creating a chat room of the channel. react-native-gifted-chat is the most complete and easy-to-use chat UI for React Native.
+
+Let’s install it:
+
+```sh
+yarn add react-native-gifted-chat
+```
+
+First we have to get a Twilio Chat client or create one if one doesn’t exist. Then we need to get the specific channel using getChannelBySid(channelSid).
+
+If we get the channel, we can get all of the messages from the channel by using the getMessages() method.
+
+Also, I’ll subscribe to the messageAdded event, which fires when a new message has been added to the channel and updates our chat.
+
+Let’s create chat-room-screen.js:
+
+```js
+export function ChatRoomScreen({ route }) {
+  const { channelId, identity } = route.params;
+  const [messages, setMessages] = useState([]);
+  const chatClientChannel = useRef();
+  const chatMessagesPaginator = useRef();
+
+  const setChannelEvents = useCallback((channel) => {
+    chatClientChannel.current = channel;
+    chatClientChannel.current.on('messageAdded', (message) => {
+      const newMessage = TwilioService.getInstance().parseMessage(message);
+      const { giftedId } = message.attributes;
+      if (giftedId) {
+        setMessages((prevMessages) => prevMessages.map((m) => (m._id === giftedId ? newMessage : m)));
+      } else {
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
+      }
+    });
+    return chatClientChannel.current;
+  }, []);
+
+  useEffect(() => {
+    TwilioService.getInstance()
+      .getChatClient()
+      .then((client) => client.getChannelBySid(channelId))
+      .then((channel) => setChannelEvents(channel))
+      .then((currentChannel) => currentChannel.getMessages())
+      .then((paginator) => {
+        chatMessagesPaginator.current = paginator;
+        const newMessages = TwilioService.getInstance().parseMessages(paginator.items);
+        setMessages(newMessages);
+      })
+      .catch((err) => showMessage({ message: err.message, type: 'danger' }))
+  }, [channelId, setChannelEvents]);
+
+  const onSend = useCallback((newMessages = []) => {
+    const attributes = { giftedId: newMessages[0]._id };
+    setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
+    chatClientChannel.current?.sendMessage(newMessages[0].text, attributes);
+  }, []);
+    
+  return (
+    <View style={styles.screen}>
+      <GiftedChat
+        messagesContainerStyle={styles.messageContainer}
+        messages={messages}
+        renderAvatarOnTop
+        onSend={(messages) => onSend(messages)}
+        user={{ _id: identity }}
+      />
+    </View>
+  );
+}
+```
+
+I created a method called onSend(). This method will call the SDK method sendMessage() on the channel object and pass the message typed by your user to it.
+
+<p>
+  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-room-screen.png">
+</p>
+
+
 ## Let’s Demo Our Twilio Chat App
 
 <p align="center">
   <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/example.gif">
 </p>
+
+## Article on Medium
+
+[Build a Twilio-Powered Chat App Using React Native](https://medium.com/better-programming/build-a-twilio-powered-chat-app-using-reactn-ative-2460b7995a30)
 
 ## How to contribute?
 
