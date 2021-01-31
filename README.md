@@ -4,10 +4,6 @@
   React Native Twilio Chat
 </h1>
 
-<p align="center">
-  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/example.gif">
-</p>
-
 Build a Chat App with Twilio and React-Native
 
 Best Practices Using Twilio Programmable Chat
@@ -122,6 +118,12 @@ That’s it for our server. Now, We can run our server with the following comman
 ```sh
 node server.js
 ```
+
+## Let’s Demo Our Twilio Chat App
+
+<p align="center">
+  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/example.gif">
+</p>
 
 ## How to contribute?
 
