@@ -284,7 +284,7 @@ Once the chat client is initialized, we can create a new chat channel with [crea
 If the channel doesn’t exist, an exception will be thrown. If it does exist, the method will return the channel resource, and from there, the channel can be joined.
 
 <p>
-  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-create-screen.png">
+  <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-create-screen.png">
 </p>
 
 ## Chat List Screen
@@ -395,7 +395,7 @@ Twilio doesn’t give you the feature to sort the channel list based on a most r
 Therefore I subscribed to the messageAdded event, which fires when a new message has been added to the channel on the server because I want to sort the channel list by the last-message time. So when someone messages via the chat, we’ll update the last-message time of the specific channel.
 
 <p>
-  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-list-screen.png">
+  <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-list-screen.png">
 </p>
 
 ## Chat Room Screen
@@ -474,7 +474,7 @@ export function ChatRoomScreen({ route }) {
 I created a method called onSend(). This method will call the SDK method sendMessage() on the channel object and pass the message typed by your user to it.
 
 <p>
-  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-room-screen.png">
+  <img width="800"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-room-screen.png">
 </p>
 
 

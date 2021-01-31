@@ -2,6 +2,25 @@
   "name": "react-native-twilio-chat",
   "version": "0.0.1",
   "private": true,
+  "description": "Build a Twilio-Powered Chat App Using React Native",
+  "author": "Gapur Kassym",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gapur/react-native-twilio-chat.git"
+  },
+  "homepage": "https://github.com/Gapur/react-native-twilio-chat/blob/master/README.md",
+  "keywords": [
+    "react",
+    "twilio",
+    "react-native",
+    "twilio-chat",
+    "twilio-api",
+    "react-native-gifted-chat",
+    "javascript",
+    "react-hooks",
+    "chat"
+  ],
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
