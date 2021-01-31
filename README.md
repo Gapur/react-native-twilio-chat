@@ -123,7 +123,7 @@ node server.js
 
 In order to show you the Twilio Programmable Chat in action, I’m going to build a full-featured app on React Native. Our app will have four screens: WelcomeScreen, ChatListScreen, ChatRoomScreen, and ChatCreateScreen.
 
-We need a router to navigate between screens in our React Native app. So I’m going to use the react-native-navigation library. React Native Navigation provides 100% native-platform navigation on both iOS and Android. We should install it with the required packages:
+We need a router to navigate between screens in our React Native app. So I’m going to use the [react-native-navigation](https://github.com/wix/react-native-navigation) library. React Native Navigation provides 100% native-platform navigation on both iOS and Android. We should install it with the required packages:
 
 ```sh
 yarn add @react-navigation/native react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view @react-navigation/stack
@@ -167,7 +167,7 @@ We’ll use the username to generate the Twilio access token.
 
 ## Chat-Create Screen
 
-The next step is to create a chat client which is what we needed the token for. I’m going to use twilio-chat to connect and work with the [Twilio SDK](http://media.twiliocdn.com/sdk/js/chat/releases/4.0.0/docs/index.html). Let’s install and test it:
+The next step is to create a chat client which is what we needed the token for. I’m going to use [twilio-chat](https://www.npmjs.com/package/twilio-chat) to connect and work with the [Twilio SDK](http://media.twiliocdn.com/sdk/js/chat/releases/4.0.0/docs/index.html). Let’s install and test it:
 
 ```sh
 yarn add twilio-chat events
@@ -283,8 +283,119 @@ Once the chat client is initialized, we can create a new chat channel with [crea
 
 If the channel doesn’t exist, an exception will be thrown. If it does exist, the method will return the channel resource, and from there, the channel can be joined.
 
-<p align="center">
-  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-create-screen.gif">
+<p>
+  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-create-screen.png">
+</p>
+
+## Chat List Screen
+
+I’m going to show all of my subscribed channels on the ChatListScreen. As a user, I want to work with updated channels when I join or create a new channel on the CreateChannelScreen. Therefore, we need to store channels globally in Redux or React Context. Redux is too complicated for our simple app, so we’ll use React Context.
+
+Let’s create our app-context.js with the following code:
+
+```js
+import React, { useState, useContext, createContext } from 'react';
+
+const defaultInitialState = { channels: [], updateChannels: () => {} };
+
+const AppContext = createContext(defaultInitialState);
+
+export function useApp() {
+  return useContext(AppContext);
+}
+
+export function AppProvider({ children }) {
+  const [channels, setChannels] = useState([]);
+
+  return <AppContext.Provider value={{ channels, updateChannels: setChannels }}>{children}</AppContext.Provider>;
+}
+```
+
+AppContext stores a list of channels and the updateChannels method. Hence we can get all of the channels:
+
+```sh
+const { channels, updateChannels } = useApp();
+```
+
+Now, our chat-list-screen.js:
+
+```js
+export function ChatListScreen({ navigation, route }) {
+  const { username } = route.params;
+  const { channels, updateChannels } = useApp();
+  const channelPaginator = useRef();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(routes.ChatCreat.name)}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  const setChannelEvents = useCallback(
+    (client) => {
+      client.on('messageAdded', (message) => {
+        updateChannels((prevChannels) =>
+          prevChannels.map((channel) =>
+            channel.id === message.channel.sid ? { ...channel, lastMessageTime: message.dateCreated } : channel,
+          ),
+        );
+      });
+      return client;
+    },
+    [updateChannels],
+  );
+
+  const getSubscribedChannels = useCallback(
+    (client) =>
+      client.getSubscribedChannels().then((paginator) => {
+        channelPaginator.current = paginator;
+        const newChannels = TwilioService.getInstance().parseChannels(channelPaginator.current.items);
+        updateChannels(newChannels);
+      }),
+    [updateChannels],
+  );
+
+  useEffect(() => {
+    getToken(username)
+      .then((token) => TwilioService.getInstance().getChatClient(token))
+      .then(() => TwilioService.getInstance().addTokenListener(getToken))
+      .then(setChannelEvents)
+      .then(getSubscribedChannels)
+      .catch((err) => showMessage({ message: err.message, type: 'danger' }))
+      .finally(() => setLoading(false));
+
+    return () => TwilioService.getInstance().clientShutdown();
+  }, [username, setChannelEvents, getSubscribedChannels]);
+
+  return (
+    <View style={styles.screen}>
+      <FlatList
+        data={channels}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ChatListItem
+            channel={item}
+            onPress={() => navigation.navigate(routes.ChatRoom.name, { channelId: item.id, identity: username })}
+          />
+        )}
+      />
+    </View>
+  );
+}
+```
+
+First, we retrieve the token and create an instance of the Twilio Chat client. Then, we get the current list of all of our subscribed channels by using the getSubscribedChannels() method and storing them in the global React Context.
+
+Twilio doesn’t give you the feature to sort the channel list based on a most recent message. Your best bet is loading all of the channels into an array and sorting them yourself.
+
+Therefore I subscribed to the messageAdded event, which fires when a new message has been added to the channel on the server because I want to sort the channel list by the last-message time. So when someone messages via the chat, we’ll update the last-message time of the specific channel.
+
+<p>
+  <img width="600"src="https://github.com/Gapur/react-native-twilio-chat/blob/master/src/assets/chat-list-screen.png">
 </p>
 
 ## Let’s Demo Our Twilio Chat App
